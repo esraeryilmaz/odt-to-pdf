@@ -1,4 +1,4 @@
-package com.demo.converter;
+package com.demo.converter.generator;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -10,17 +10,17 @@ import org.odftoolkit.odfdom.converter.pdf.PdfConverter;
 import org.odftoolkit.odfdom.converter.pdf.PdfOptions;
 import org.odftoolkit.odfdom.doc.OdfTextDocument;
 
-public class Converter {
+public class PDFGenerator {
 
 	private File odtFile;
 	private File pdfFile;
 
 
-	public Converter() {
+	public PDFGenerator() {
 		
 	}
 
-	public Converter(File odtFile, File pdfFile) {
+	public PDFGenerator(File odtFile, File pdfFile) {
 		this.odtFile = odtFile;
 		this.pdfFile = pdfFile;
 	}
