@@ -1,6 +1,6 @@
 package com.demo.converter.model;
 
-
+// odt dosyasında sadece name ve password olduğunu varsayarsak: 
 public class ODT {
 
 	private String name;

@@ -1,80 +1,53 @@
 package com.demo.converter.generator;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.List;
+import java.nio.file.Path;
 
-import fr.opensagres.xdocreport.converter.ConverterTypeTo;
-import fr.opensagres.xdocreport.converter.ConverterTypeVia;
-import fr.opensagres.xdocreport.converter.Options;
+import org.springframework.stereotype.Component;
 
 import fr.opensagres.xdocreport.document.IXDocReport;
 import fr.opensagres.xdocreport.document.registry.XDocReportRegistry;
 //import fr.opensagres.xdocreport.samples.odtandvelocity.ODTProjectWithVelocity;
 import fr.opensagres.xdocreport.template.IContext;
 import fr.opensagres.xdocreport.template.TemplateEngineKind;
-import fr.opensagres.xdocreport.template.formatter.FieldsMetadata;
 
 import com.demo.converter.model.ODT;
-//import fr.opensagres.xdocreport.samples.odtandvelocity.model.Project;
-import com.demo.converter.model.Project;
 
 
+
+// elle oluşturulmuş ve işaretlenmiş (işaretleme örn : $odtRows.Name) odt dosyasının(marketODT.odt) içerisini gönderilen verilerle doldurur
+// ve gönderilen path'e kaydeder
+@Component
 public class ODTGenerator {
 
-	private File markedODT;
-	private File generatedODT;
-
+	//private String PRINT_TEMPLATE_ODT = "C:\\Users\\esra\\Desktop\\odt-to-pdf\\converter\\src\\main\\java\\raporlar\\markedODT.odt";
+	private String PRINT_TEMPLATE_ODT = "../../../../raporlar/markedODT.odt";
 
 	public ODTGenerator() {
 
 	}
 
-	public ODTGenerator(File markedODT, File generatedODT) {
-		this.markedODT = markedODT;
-		this.generatedODT = generatedODT;
-	}
 
-	public void odtGenerator() {
+	// fonksiyona gönderilen name ve password'u kullanarak verilen path'e, verilerle doldurulmuş bir odt dosyası yaratır
+	public void odtGenerator(String name, String password, Path reportPath) {
 
 		try {
 			// 1) Load ODT file by filling Velocity template engine and cache it to the registry
-			InputStream in = new FileInputStream(markedODT);
+			//InputStream in = new FileInputStream(PRINT_TEMPLATE_ODT);		// absolute path
+			InputStream in = getClass().getResourceAsStream(PRINT_TEMPLATE_ODT);	//relative path
 			IXDocReport report = XDocReportRegistry.getRegistry().loadReport(in,TemplateEngineKind.Velocity);
 			
-			// 2) Create fields metadata to manage lazy loop (#forech velocity) for table row.
-			FieldsMetadata metadata = new FieldsMetadata();
-			metadata.addFieldAsList("odtRows.Name");
-			metadata.addFieldAsList("odtRows.Password");
-			report.setFieldsMetadata(metadata);
-
-			// 3) Create context Java model
+			// 2) Create context Java model
 			IContext context = report.createContext();
-			Project project = new Project("ODT Report");
-			context.put("project", project);
-			// odt list
-			List<ODT> odtRows = new ArrayList<ODT>();
-			odtRows.add(new ODT("Esra", "1234"));
-			odtRows.add(new ODT("Ayse", "abcd"));
-			odtRows.add(new ODT("Ahmet", "12ab"));
-			odtRows.add(new ODT("Mehmet", "34cd"));
-			context.put("odtRows", odtRows);
+			ODT namePassword = new ODT(name, password);
+			context.put("odtRows", namePassword);
 
-
-			// 4) Generate report by merging Java model with the ODT
-			OutputStream out = new FileOutputStream(generatedODT);
-			report.process(context, out);
-
-/*
-			OutputStream out = new FileOutputStream(new File("C:\\Users\\esra\\Desktop\\converter\\src\\main\\java\\generatedPDF.pdf"));
-			Options options = Options.getTo(ConverterTypeTo.PDF).via(ConverterTypeVia.ODFDOM);
-			report.convert(context, options, out);
-*/
-
+			// 3) Generate report by merging Java model with the ODT
+			OutputStream outODT = new FileOutputStream(reportPath.toFile());
+			report.process(context, outODT);
 
 	      } catch (Exception e) {
 	        e.printStackTrace();
